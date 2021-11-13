@@ -12,6 +12,8 @@ namespace CLILauncherGenerator
             var filename = Console.ReadLine();
             Console.Write("OutputName      > ");
             var oname = Console.ReadLine();
+            Console.Write("RedirectWorkDir > ");
+            var redirect = Console.ReadLine();
 
             string code = @"using System.Diagnostics;
                 class MainClass
@@ -24,16 +26,24 @@ namespace CLILauncherGenerator
                             argString += Arg;
                         }
                         using (Process myProcess = new Process())
-                        {
-                            myProcess.StartInfo.WorkingDirectory = System.IO.Directory.GetCurrentDirectory();
+                        {   "+
+                        (
+                            redirect=="y" ? 
+                            "myProcess.StartInfo.WorkingDirectory = System.IO.Directory.GetCurrentDirectory();":
+                            "myProcess.StartInfo.WorkingDirectory = @\""+filename.Substring(0,filename.LastIndexOf("\\"))+"\";"
+                        )
+                            +@"
                             myProcess.StartInfo.UseShellExecute = false;
                             myProcess.StartInfo.Arguments = argString;
-                            myProcess.StartInfo.FileName = """ + filename.Replace("\\", "\\\\") + @""";
+                            myProcess.StartInfo.FileName = @""" + filename + @""";
                             myProcess.Start();
                         }
                     }
                 }
                 ";
+
+            Console.WriteLine(code);
+            Console.ReadKey();
             CSharpCodeProvider provider = new CSharpCodeProvider();
             CompilerParameters parameter = new CompilerParameters();
 
